@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class DumbEnemy : MonoBehaviour {
     public float speed;
+    public float lookDistance;
+    public float safetyDistance;
     private float timer = 0.0f;
-    private float decisionTimer = 2.0f;
+    private float decisionTimer = 10.0f;
     private Rigidbody rbody;
 
 	// Use this for initialization
@@ -22,6 +24,28 @@ public class DumbEnemy : MonoBehaviour {
 
 		
 	}
+
+    void FixedUpdate() {
+        RaycastHit hit = new RaycastHit();
+        
+        if (Physics.Raycast(transform.position, transform.forward, out hit, lookDistance)) {
+            if (hit.collider.CompareTag("Boundary")) {
+                Vector3 targetPosition = hit.point + hit.normal * safetyDistance;
+                Vector3 cross = Vector3.Cross(rbody.velocity, hit.normal);
+                if (cross.magnitude < float.Epsilon) {
+                    targetPosition = hit.point - hit.normal * safetyDistance;
+                }
+                Vector3 direction = (targetPosition - transform.position).normalized;
+                Quaternion rotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.fixedDeltaTime * 25);
+
+            }
+        }
+    }
+
+    void OnTriggerEnter(Collider other) {
+        
+    }
 
     private void RandomMovement() {
         timer += Time.deltaTime;

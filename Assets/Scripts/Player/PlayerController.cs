@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour {
 
     // Use this for initialization
     void Awake () {
+        Cursor.visible = false;
         rbody = GetComponent<Rigidbody>();
         cameraTransform = Camera.main.transform.parent;
         cameraOffset = cameraTransform.position - transform.position;
