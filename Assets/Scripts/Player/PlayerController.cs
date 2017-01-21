@@ -31,7 +31,6 @@ public class PlayerController : MonoBehaviour {
     void FixedUpdate() {
         transform.eulerAngles = new Vector3(0.0f, yaw, 0.0f);
         direction = playerCam.transform.TransformDirection(direction);
-        //rbody.AddForce(direction * speed);
         if (direction != Vector3.zero) {
             rbody.MovePosition(transform.position + direction * speed * Time.fixedDeltaTime);
         }

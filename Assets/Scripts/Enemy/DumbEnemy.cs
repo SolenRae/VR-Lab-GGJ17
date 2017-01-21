@@ -57,7 +57,6 @@ public class DumbEnemy : MonoBehaviour, ITakeDamage {
     }
 
     void OnCollisionStay(Collision other) {
-        Debug.Log("SUP");
 
         if (other.gameObject.CompareTag("Player") && cooldownTimer > damageCooldown) {
             Debug.Log("SUP");
