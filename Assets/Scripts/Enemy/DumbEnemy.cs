@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DumbEnemy : MonoBehaviour {
+public class DumbEnemy : MonoBehaviour, ITakeDamage {
+    public float touchDamage;
     public float speed;
     public float lookDistance;
     public float safetyDistance;
     private float timer = 0.0f;
     private float decisionTimer = 10.0f;
     private Rigidbody rbody;
+    private float damageCooldown = 1f;
+    private float cooldownTimer = 0f;
 
 	// Use this for initialization
 	void Start () {
@@ -18,12 +21,16 @@ public class DumbEnemy : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        cooldownTimer += Time.deltaTime;
         RandomMovement();
         Move();
 
 		
 	}
+
+    public void TakeDamage(float damage) {
+
+    }
 
     void FixedUpdate() {
         /**
@@ -49,8 +56,15 @@ public class DumbEnemy : MonoBehaviour {
         }
     }
 
-    void OnTriggerEnter(Collider other) {
-        
+    void OnCollisionStay(Collision other) {
+        Debug.Log("SUP");
+
+        if (other.gameObject.CompareTag("Player") && cooldownTimer > damageCooldown) {
+            Debug.Log("SUP");
+            ITakeDamage itdref = other.gameObject.GetComponent<ITakeDamage>();
+            itdref.TakeDamage(touchDamage);
+            cooldownTimer = 0f;
+        }
     }
 
     private void RandomMovement() {

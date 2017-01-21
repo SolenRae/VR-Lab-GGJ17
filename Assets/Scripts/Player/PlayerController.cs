@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
     public float speed;
-    private Transform cameraTransform;
     private Vector3 cameraOffset;
     private Rigidbody rbody;
+    private Camera playerCam;
     private float yaw = 0f;
     private float pitch = 0f;
 
@@ -15,9 +15,10 @@ public class PlayerController : MonoBehaviour {
     // Use this for initialization
     void Awake () {
         Cursor.visible = false;
+        Camera.main.enabled = false;
         rbody = GetComponent<Rigidbody>();
-        cameraTransform = Camera.main.transform.parent;
-        cameraOffset = cameraTransform.position - transform.position;
+        playerCam = GameObject.FindGameObjectWithTag("PlayerCamera").GetComponent<Camera>();
+        cameraOffset = playerCam.transform.position - transform.position;
 	}
 
     void Update() {
@@ -29,7 +30,7 @@ public class PlayerController : MonoBehaviour {
 
     void FixedUpdate() {
         transform.eulerAngles = new Vector3(0.0f, yaw, 0.0f);
-        direction = cameraTransform.TransformDirection(direction);
+        direction = playerCam.transform.TransformDirection(direction);
         //rbody.AddForce(direction * speed);
         if (direction != Vector3.zero) {
             rbody.MovePosition(transform.position + direction * speed * Time.fixedDeltaTime);
@@ -43,7 +44,7 @@ public class PlayerController : MonoBehaviour {
     }
 	
     void LateUpdate() {
-        cameraTransform.position = transform.position + cameraOffset;
-        cameraTransform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
+        playerCam.transform.position = transform.position + cameraOffset;
+        playerCam.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
     }
 }
