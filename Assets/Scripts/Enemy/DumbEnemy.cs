@@ -26,6 +26,13 @@ public class DumbEnemy : MonoBehaviour {
 	}
 
     void FixedUpdate() {
+        /**
+        *Use raycasting to check for a collision with a given range
+        *If collision has happened and the collider is tagged as a boundary collider
+        *find a new direction to target from the colliders normal at raycast hit point
+        *safety check for rare cases where it's parallell with the normal
+        *rotate enemy towards point (along the line of the wall)
+        */
         RaycastHit hit = new RaycastHit();
         
         if (Physics.Raycast(transform.position, transform.forward, out hit, lookDistance)) {
@@ -38,7 +45,6 @@ public class DumbEnemy : MonoBehaviour {
                 Vector3 direction = (targetPosition - transform.position).normalized;
                 Quaternion rotation = Quaternion.LookRotation(direction);
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.fixedDeltaTime * 25);
-
             }
         }
     }
