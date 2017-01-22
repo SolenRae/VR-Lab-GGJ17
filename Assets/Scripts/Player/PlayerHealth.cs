@@ -5,10 +5,12 @@ using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour, ITakeDamage {
     public float maxHealth;
+    public float numFlashes;
+    public float deathDelay;
     private float curHealth;
     private bool dead = false;
     private Text textReference;
-    //List<Sprite> HealthSprites = new List<Sprite>();
+    private bool hasDied = false; // check if the player have run the die corutine once.
 
     [SerializeField]
     public Sprite[] healthSprites;
@@ -24,32 +26,51 @@ public class PlayerHealth : MonoBehaviour, ITakeDamage {
             return;
         }
         curHealth -= damage;
-        if(curHealth <= 0) {
+        StartCoroutine(DamageFlash());
+        if (curHealth <= 0) {
             curHealth = 0;
             dead = true;
-            GameObject.FindGameObjectWithTag("PlayerCamera").GetComponent<Camera>().enabled = false;
         }
     }
 
 	// Update is called once per frame
 	void Update () {
-        if(dead) {
+        if(dead && !hasDied) {
             GameObject.Find("Healthbar").GetComponent<Image>().sprite = healthSprites[0];
-            Destroy(gameObject, 5);
-            Destroy(GameObject.Find("Healthbar"), 5);
-            GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().enabled = true;
-
-            //Set text and alignment canvas, but idk why it doesn't work properly with position
-            textReference.alignment = TextAnchor.MiddleCenter;
-            textReference.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            textReference.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            textReference.rectTransform.position.Set(0.0f, 0.0f, 0.0f);
-            textReference.text = "YOU DEAD SON";
+            GetComponent<PlayerController>().enabled = false;
+            StartCoroutine(HandleDeath(deathDelay));
         }
-
         if(!dead) {
-            GameObject.Find("Healthbar").GetComponent<Image>().sprite = healthSprites[(int)(curHealth / 10)];
+            if(curHealth == maxHealth) {
+                GameObject.Find("Healthbar").GetComponent<Image>().sprite = healthSprites[(int)(curHealth / 10)];
+            }
         }
 
+    }
+
+    IEnumerator HandleDeath(float delay) {
+        yield return new WaitForSeconds(delay);
+        GameObject.FindGameObjectWithTag("PlayerCamera").GetComponent<Camera>().enabled = false;
+        GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>().enabled = true;
+
+        textReference.alignment = TextAnchor.MiddleCenter;
+        textReference.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        textReference.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        textReference.rectTransform.position.Set(0.0f, 0.0f, 0.0f);
+        textReference.text = "YOU DEAD SON";
+        textReference.enabled = true;
+
+        Destroy(gameObject);
+        Destroy(GameObject.Find("Healthbar"));
+    }
+
+    IEnumerator DamageFlash() {
+        for(int i = 0; i < numFlashes; ++i) {
+            GameObject.Find("Healthbar").GetComponent<Image>().sprite = healthSprites[(int)(curHealth / 10) + 1];
+            yield return new WaitForSeconds(0.25f);
+            GameObject.Find("Healthbar").GetComponent<Image>().sprite = healthSprites[(int)(curHealth / 10)];
+            yield return new WaitForSeconds(0.25f);
+
+        }
     }
 }
